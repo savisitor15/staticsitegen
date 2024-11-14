@@ -1,11 +1,11 @@
 from enum import Enum
 
 class HTMLNode(object):
-    def __init__(self, tag = None, value = None, children = None, props = None):
+    def __init__(self, tag = None, value = None, props = None, children = None):
         self.tag = tag
         self.value = value
-        self.children = children
         self.props = props
+        self.children = children
 
     def to_html(self):
         raise NotImplementedError()
@@ -17,4 +17,4 @@ class HTMLNode(object):
         return out
     
     def __repr__(self):
-        return f"HTMLNode(tag={self.tag}, value={self.value}, children={self.children}, props={self.props})"
+        return f"HTMLNode(tag={self.tag}, value={self.value}, props={self.props}, children={self.children})"

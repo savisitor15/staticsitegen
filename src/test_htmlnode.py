@@ -26,7 +26,7 @@ class TestHTMLNode(unittest.TestCase):
     def test_HTMLNode_repr(self):
         """Test HTMLNode string representation"""
         node = HTMLNode()
-        self.assertEqual(str(node), "HTMLNode(tag=None, value=None, children=None, props=None)")
+        self.assertEqual(str(node), "HTMLNode(tag=None, value=None, props=None, children=None)")
 
 
 
