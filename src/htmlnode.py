@@ -30,3 +30,19 @@ class LeafNode(HTMLNode):
         if self.tag == None:
             return f"{self.value}"
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+    
+class ParentNode(HTMLNode):
+    def __init__(self, tag, children, props=None):
+        super().__init__(tag=tag, props=props, children=children)
+
+    def _output_children_html(self, children):
+        if len(children) == 0:
+            return ""
+        return f"{children[0].to_html()}{self._output_children_html(children[1:])}"
+
+    def to_html(self):
+        if self.tag == None or self.tag == "":
+            raise ValueError("Parent - tag invalid")
+        if self.children == None or len(self.children) == 0:
+            raise ValueError("Parent - no children")
+        return f"<{self.tag}>{self._output_children_html(self.children)}</{self.tag}>"
