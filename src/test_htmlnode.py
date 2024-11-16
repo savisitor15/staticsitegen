@@ -1,6 +1,7 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode, ParentNode
+from htmlnode import HTMLNode, LeafNode, ParentNode, text_node_to_html_node
+from textnode import TextNode, TextType
 
 HTML_MEMBERS = ["tag", "value", "props", "children"]
 LEAF_DATA_A = {"tag": "p", "value": "This is a paragraph of text.", "props": None}
@@ -17,6 +18,14 @@ class TestHTMLNode(unittest.TestCase):
         node = HTMLNode()
         for mem in HTML_MEMBERS:
             self.assertTrue(hasattr(node, mem), f"Missing ->{mem}<- data member in HTMLNode definition!")
+
+    def test_HTMLNode_eq(self):
+        """Ensure eqaulity works"""
+        node1 = HTMLNode()
+        node2 = HTMLNode()
+        self.assertEqual(node1, node2)
+        node3 = HTMLNode("b", HELLO)
+        self.assertNotEqual(node1, node3)
 
     def test_HTMLNode_to_html(self):
         """Testing HTMLNode should not implement to_html method, just declare"""
@@ -52,7 +61,7 @@ class TestLeafNode(unittest.TestCase):
         node1 = LeafNode(LEAF_DATA_A.get("tag"), LEAF_DATA_A.get("value"),)
         node2 = LeafNode(LEAF_DATA_B.get("tag"), LEAF_DATA_B.get("value"), LEAF_DATA_B.get("props"))
         node3 = LeafNode(None, HELLO)
-        node4 = LeafNode("p", "")
+        node4 = LeafNode("p", None)
         self.assertEqual(node1.to_html(), "<p>This is a paragraph of text.</p>")
         self.assertEqual(node2.to_html(), '<a href="https://www.google.com">Click me!</a>')
         self.assertEqual(node3.to_html(), HELLO)
@@ -95,6 +104,44 @@ class TestParentNode(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             node.to_html()
             self.assertEqual(cm.exception, "LeafNodes must have a value!")
+
+class Test_text_node_to_html_node(unittest.TestCase):
+    def test_Bold_Conversion(self):
+        """Convert a TextNode with BOLD text to HTML"""
+        node = TextNode(HELLO, TextType.BOLD)
+        h_node = text_node_to_html_node(node)
+        self.assertEqual(h_node, LeafNode("b", HELLO))
+
+    def test_Text_Conversion(self):
+        """Normal text node to HTML"""
+        node = TextNode(HELLO, TextType.TEXT)
+        h_node = text_node_to_html_node(node)
+        self.assertEqual(h_node, LeafNode("", HELLO))
+
+    def test_Italic_Conversion(self):
+        """Italic node to HTML node"""
+        node = TextNode(HELLO, TextType.ITALIC)
+        h_node = text_node_to_html_node(node)
+        self.assertEqual(h_node, LeafNode("i", HELLO))
+
+    def test_Code_Conversion(self):
+        """Code block text node to html node"""
+        node = TextNode(HELLO, TextType.CODE)
+        h_node = text_node_to_html_node(node)
+        self.assertEqual(h_node, LeafNode("code", HELLO))
+
+    def test_Image_conversion(self):
+        """Image text node to html node"""
+        node = TextNode(HELLO, TextType.IMAGE, "flower.jpg")
+        h_node = text_node_to_html_node(node)
+        self.assertEqual(h_node, LeafNode("img", "", {"src": "flower.jpg", "alt": HELLO}))
+
+    def test_Link_Conversion(self):
+        """Converting links to HTML nodes"""
+        node = TextNode(HELLO, TextType.LINK, "https://google.com")
+        h_node = text_node_to_html_node(node)
+        self.assertEqual(h_node, LeafNode("a", HELLO, {"href": "https://google.com"}))
+
 
 if __name__ == "__main__":
     unittest.main()
