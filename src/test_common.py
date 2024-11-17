@@ -132,7 +132,15 @@ class Test_split_nodes_delimiter(unittest.TestCase):
         ]
         self.assertEqual(split_text_nodes_nested(sample), expectation)
 
-    
+    def test_nesting_image_link(self):
+        """Should not support nesting"""
+        sample = [TextNode("![*rick roll*](https://i.imgur.com/aKaOqIh.gif) [`to boot dev`](https://www.boot.dev)", TextType.TEXT)]
+        expectation = [
+            TextNode("*rick roll*", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+            TextNode(" ", TextType.TEXT),
+            TextNode("`to boot dev`", TextType.LINK, "https://www.boot.dev")
+        ]
+        self.assertEqual(split_text_nodes_nested(sample), expectation)
 
     def test_bad_input(self):
         with self.assertRaises(TypeError) as cm:

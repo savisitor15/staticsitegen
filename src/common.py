@@ -72,11 +72,15 @@ def split_nodes_delimiter(old_nodes: list[TextNode], output_type: TextType,) -> 
         source_str = item.text
         matches = re.finditer(regex_pat, source_str)
         last_match_end = 0
+        # Image and Links don't support nesting!
+        if item.text_type == TextType.LINK or item.text_type == TextType.IMAGE:
+            output_list.append(item)
+            continue
         for match in matches:
             # extract the match from the source string
             if last_match_end < match.start():
                 # This is a second match and there's source text between!
-                output_list.append(TextNode(source_str[last_match_end:match.start()], item.text_type, item.url or None))
+                output_list.append(TextNode(source_str[last_match_end:match.start()], item.text_type))
             # The extracted match
             if output_type == TextType.IMAGE or output_type == TextType.LINK:
                 output_list.append(TextNode(match.group(1), output_type, match.group(2)))
@@ -85,7 +89,7 @@ def split_nodes_delimiter(old_nodes: list[TextNode], output_type: TextType,) -> 
                 output_list.append(TextNode(match.group(1), output_type))
             last_match_end = match.end()
         if last_match_end < len(source_str):
-            output_list.append(TextNode(source_str[last_match_end:], item.text_type, item.url or None))
+            output_list.append(TextNode(source_str[last_match_end:], item.text_type))
     return output_list
 
 def split_text_nodes_nested(old_nodes: list[TextNode], )->list[TextNode]:
