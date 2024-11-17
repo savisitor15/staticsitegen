@@ -2,7 +2,7 @@ import unittest
 from textnode import TextNode, TextType
 from htmlnode import LeafNode
 
-from common import text_node_to_html_node, split_nodes_delimiter
+from common import text_node_to_html_node, split_nodes_delimiter, split_text_nodes_nested
 
 
 
@@ -102,7 +102,7 @@ class Test_split_nodes_delimiter(unittest.TestCase):
             TextNode("to be seen", TextType.CODE),
             TextNode("!", TextType.TEXT)
         ]
-        self.assertEqual(split_nodes_delimiter(split_nodes_delimiter(split_nodes_delimiter(sample, TextType.BOLD), TextType.ITALIC), TextType.CODE), expectation)
+        self.assertEqual(split_text_nodes_nested(sample), expectation)
 
     def test_combined_nested(self):
         """Test Nested markup"""
@@ -113,7 +113,7 @@ class Test_split_nodes_delimiter(unittest.TestCase):
             TextNode("humans", TextType.ITALIC),
             TextNode(" out there", TextType.BOLD),
         ]
-        self.assertEqual(split_nodes_delimiter(split_nodes_delimiter(sample, TextType.BOLD), TextType.ITALIC), expectation)
+        self.assertEqual(split_text_nodes_nested(sample), expectation)
 
     def test_bad_input(self):
         with self.assertRaises(TypeError) as cm:

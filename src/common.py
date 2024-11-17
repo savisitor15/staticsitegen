@@ -70,8 +70,11 @@ def split_nodes_delimiter(old_nodes: list[TextNode], output_type: TextType,) -> 
             last_match_end = match.end()
         if last_match_end < len(source_str):
             output_list.append(TextNode(source_str[last_match_end:], item.text_type))
-
     return output_list
+
+def split_text_nodes_nested(old_nodes: list[TextNode], )->list[TextNode]:
+    """This routine calls split_nodes_delimiter in the correct order to safely expand all text nodes not Links and Images that may be nested."""
+    return split_nodes_delimiter(split_nodes_delimiter(split_nodes_delimiter(old_nodes, TextType.BOLD), TextType.ITALIC), TextType.CODE)
 
         
 
