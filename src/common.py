@@ -102,5 +102,7 @@ def split_text_nodes_nested(old_nodes: list[TextNode], )->list[TextNode]:
         new_nodes = split_nodes_delimiter(new_nodes, it)
     return new_nodes
 
-        
+def text_to_textnodes(text: str) -> list[TextNode]:
+    """Push a text to markdown extraction"""    
+    return split_text_nodes_nested([TextNode(text, TextType.TEXT)])
 

@@ -2,7 +2,7 @@ import unittest
 from textnode import TextNode, TextType
 from htmlnode import LeafNode
 
-from common import text_node_to_html_node, split_nodes_delimiter, split_text_nodes_nested
+from common import text_node_to_html_node, split_nodes_delimiter, split_text_nodes_nested, text_to_textnodes
 
 
 
@@ -146,6 +146,24 @@ class Test_split_nodes_delimiter(unittest.TestCase):
         with self.assertRaises(TypeError) as cm:
             split_nodes_delimiter(TextNode("Non list sent in!", TextType.TEXT), TextType.BOLD)
             self.assertEqual(cm.exception, "Old_nodes must be a list of TextNode!")
+
+class TestTextToTextNodes(unittest.TestCase):
+    def test_basic(self):
+        """Convert a string into an expected result sub-set"""
+        sample = "This `string` contains ![rick roll](https://i.imgur.com/aKaOqIh.gif) [to boot dev](https://www.boot.dev) **Wee whoo*** summer*`child`"
+        expectation = [
+            TextNode("This ", TextType.TEXT),
+            TextNode("string", TextType.CODE),
+            TextNode(" contains ", TextType.TEXT),
+            TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+            TextNode(" ", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" ", TextType.TEXT),
+            TextNode("Wee whoo", TextType.BOLD),
+            TextNode(" summer", TextType.ITALIC),
+            TextNode("child", TextType.CODE)
+        ]
+        self.assertEqual(text_to_textnodes(sample), expectation)
 
 if __name__ == "__main__":
     unittest.main()
