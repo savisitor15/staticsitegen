@@ -115,6 +115,25 @@ class Test_split_nodes_delimiter(unittest.TestCase):
         ]
         self.assertEqual(split_text_nodes_nested(sample), expectation)
 
+    def test_end_to_end_extraction(self):
+        """Test IMAGE -> LINK -> BOLD -> ITALIC -> CODE extraction"""
+        sample = [TextNode("This `string` contains ![rick roll](https://i.imgur.com/aKaOqIh.gif) [to boot dev](https://www.boot.dev) **Wee whoo*** summer*`child`", TextType.TEXT)]
+        expectation = [
+            TextNode("This ", TextType.TEXT),
+            TextNode("string", TextType.CODE),
+            TextNode(" contains ", TextType.TEXT),
+            TextNode("rick roll", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"),
+            TextNode(" ", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" ", TextType.TEXT),
+            TextNode("Wee whoo", TextType.BOLD),
+            TextNode(" summer", TextType.ITALIC),
+            TextNode("child", TextType.CODE)
+        ]
+        self.assertEqual(split_text_nodes_nested(sample), expectation)
+
+    
+
     def test_bad_input(self):
         with self.assertRaises(TypeError) as cm:
             split_nodes_delimiter(TextNode("Non list sent in!", TextType.TEXT), TextType.BOLD)
