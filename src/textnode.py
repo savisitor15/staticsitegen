@@ -1,10 +1,5 @@
 from enum import Enum
 
-class NodeType(Enum):
-    HTML = "html"
-    LEAF = "leaf"
-    TEXT = "text"
-
 class TextType(Enum):
     TEXT = "text"
     BOLD = "bold"
@@ -13,6 +8,14 @@ class TextType(Enum):
     LINK = "link"
     IMAGE = "image"
 
+TEXT_DELIMITERS = {
+    TextType.BOLD : "**",
+    TextType.ITALIC : "*",
+    TextType.CODE : "`",
+    TextType.IMAGE : "",
+    TextType.LINK : "",
+    TextType.TEXT : None
+}
 
 class TextNode(object):
     def __init__(self, text : str, text_type: TextType, url: str = None):

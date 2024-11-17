@@ -2,7 +2,7 @@ import unittest
 from textnode import TextNode, TextType
 from htmlnode import LeafNode
 
-from common import text_node_to_html_node
+from common import text_node_to_html_node, split_nodes_delimiter
 
 
 
@@ -45,6 +45,80 @@ class Test_text_node_to_html_node(unittest.TestCase):
         h_node = text_node_to_html_node(node)
         self.assertEqual(h_node, LeafNode("a", HELLO, {"href": "https://google.com"}))
 
+class Test_split_nodes_delimiter(unittest.TestCase):
+    def test_bold_extraction(self):
+        """Extract a single MID point bold word"""
+        sample = [TextNode("Hello **World**!", TextType.TEXT)]
+        self.assertEqual(split_nodes_delimiter(sample, TextType.BOLD), [TextNode("Hello ", TextType.TEXT),TextNode("World", TextType.BOLD),
+                                                                         TextNode("!", TextType.TEXT)])
+        
+    def test_multi_bold_extraction(self):
+        """Extract multiple Mid point bold markup"""
+        sample = [TextNode("**Hello** **World**!", TextType.TEXT)]
+        self.assertEqual(split_nodes_delimiter(sample, TextType.BOLD), [TextNode("Hello", TextType.BOLD),
+                                                                        TextNode(" ", TextType.TEXT),
+                                                                        TextNode("World", TextType.BOLD),
+                                                                         TextNode("!", TextType.TEXT)])
+        
+    def test_italic_extraction(self):
+        """Extract a single MID point italic word"""
+        sample = [TextNode("Hello *World*!", TextType.TEXT)]
+        self.assertEqual(split_nodes_delimiter(sample, TextType.ITALIC), [TextNode("Hello ", TextType.TEXT),
+                                                                        TextNode("World", TextType.ITALIC),
+                                                                         TextNode("!", TextType.TEXT)])
+    
+    def test_multi_italic_extraction(self):
+        """Extract multiple Mid point italic markup"""
+        sample = [TextNode("*Hello* *World*!", TextType.TEXT)]
+        self.assertEqual(split_nodes_delimiter(sample, TextType.ITALIC), [TextNode("Hello", TextType.ITALIC),
+                                                                        TextNode(" ", TextType.TEXT),
+                                                                        TextNode("World", TextType.ITALIC),
+                                                                         TextNode("!", TextType.TEXT)])
+        
+    def test_code_extraction(self):
+        """Extract a single MID point code word"""
+        sample = [TextNode("Hello `World`!", TextType.TEXT)]
+        self.assertEqual(split_nodes_delimiter(sample, TextType.CODE), [TextNode("Hello ", TextType.TEXT),
+                                                                        TextNode("World", TextType.CODE),
+                                                                         TextNode("!", TextType.TEXT)])
+    
+    def test_multi_italic_extraction(self):
+        """Extract multiple Mid point code markup"""
+        sample = [TextNode("`Hello` `World`!", TextType.TEXT)]
+        self.assertEqual(split_nodes_delimiter(sample, TextType.CODE), [TextNode("Hello", TextType.CODE),
+                                                                        TextNode(" ", TextType.TEXT),
+                                                                        TextNode("World", TextType.CODE),
+                                                                         TextNode("!", TextType.TEXT)])
+        
+    def test_combined_extraction(self):
+        """Test combining extractions, ORDER matters BOLD->ITALIC->CODE"""
+        sample = [TextNode("This **MUST** be done in the *correct* order `to be seen`!", TextType.TEXT)]
+        expectation = [
+            TextNode("This ", TextType.TEXT),
+            TextNode("MUST", TextType.BOLD),
+            TextNode(" be done in the ", TextType.TEXT),
+            TextNode("correct", TextType.ITALIC),
+            TextNode(" order ", TextType.TEXT),
+            TextNode("to be seen", TextType.CODE),
+            TextNode("!", TextType.TEXT)
+        ]
+        self.assertEqual(split_nodes_delimiter(split_nodes_delimiter(split_nodes_delimiter(sample, TextType.BOLD), TextType.ITALIC), TextType.CODE), expectation)
+
+    def test_combined_nested(self):
+        """Test Nested markup"""
+        sample = [TextNode("Hello **all you *humans* out there**", TextType.TEXT)]
+        expectation = [
+            TextNode("Hello ", TextType.TEXT),
+            TextNode("all you ", TextType.BOLD),
+            TextNode("humans", TextType.ITALIC),
+            TextNode(" out there", TextType.BOLD),
+        ]
+        self.assertEqual(split_nodes_delimiter(split_nodes_delimiter(sample, TextType.BOLD), TextType.ITALIC), expectation)
+
+    def test_bad_input(self):
+        with self.assertRaises(TypeError) as cm:
+            split_nodes_delimiter(TextNode("Non list sent in!", TextType.TEXT), TextType.BOLD)
+            self.assertEqual(cm.exception, "Old_nodes must be a list of TextNode!")
 
 if __name__ == "__main__":
     unittest.main()
