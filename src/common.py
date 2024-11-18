@@ -84,7 +84,6 @@ def split_nodes_delimiter(old_nodes: list[TextNode], output_type: TextType,) -> 
             # The extracted match
             if output_type == TextType.IMAGE or output_type == TextType.LINK:
                 output_list.append(TextNode(match.group(1), output_type, match.group(2)))
-                print(f"Testing! ->> {match.groups()}")
             else:
                 output_list.append(TextNode(match.group(1), output_type))
             last_match_end = match.end()
@@ -105,4 +104,19 @@ def split_text_nodes_nested(old_nodes: list[TextNode], )->list[TextNode]:
 def text_to_textnodes(text: str) -> list[TextNode]:
     """Push a text to markdown extraction"""    
     return split_text_nodes_nested([TextNode(text, TextType.TEXT)])
+
+def markdown_to_blocks(markdown: str) -> list[str]:
+    """This routine splits a documents into identifyable blocks of markdown seperated by new lines"""
+    if len(markdown) <= 0:
+        raise ValueError("No document supplied!")
+    orig_blocks = markdown.split("\n\n")
+    blocks = list()
+    for index, block in enumerate(orig_blocks):
+        if len(block.strip()) == 0:
+            continue
+        else:
+            block = '\n'.join([x.strip() for x in block.split('\n')])
+            blocks.append(block.strip())
+    return blocks
+
 
