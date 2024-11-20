@@ -2,7 +2,7 @@ import unittest
 from textnode import TextNode, TextType
 from htmlnode import LeafNode
 
-from common import text_node_to_html_node, split_nodes_delimiter, split_text_nodes_nested, text_to_textnodes, markdown_to_blocks
+from textcommon import text_node_to_html_node, split_nodes_delimiter, split_text_nodes_nested, text_to_textnodes
 
 
 
@@ -165,24 +165,7 @@ class TestTextToTextNodes(unittest.TestCase):
         ]
         self.assertEqual(text_to_textnodes(sample), expectation)
 
-class Test_markdown_to_blocks(unittest.TestCase):
-    def test_markdown_to_blocks(self):
-        """Basic self test"""
-        sample = """
-        # This is a heading
 
-        This is a paragraph of text. It has some **bold** and *italic* words inside of it.
-
-        * This is the first list item in a list block
-        * This is a list item
-        * This is another list item
-        """
-        expectation =[
-            "# This is a heading",
-            "This is a paragraph of text. It has some **bold** and *italic* words inside of it.",
-            "* This is the first list item in a list block\n* This is a list item\n* This is another list item"
-        ]
-        self.assertEqual(markdown_to_blocks(sample), expectation)
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,12 +1,14 @@
 from textnode import TextType, TextNode, TEXT_DELIMITERS
 from enum import Enum
 from htmlnode import LeafNode
+import re
 
 
 class NodeType(Enum):
     HTML = "html"
     LEAF = "leaf"
     TEXT = "text"
+    BLOCK = "block"
 
 TextToTag = {
     TextType.TEXT : "",
@@ -33,22 +35,7 @@ def text_node_to_html_node(text_node: TextNode):
             return LeafNode(tag, text_node.text, {"href": text_node.url})
         case _:
             raise ValueError(f"{text_node.text_type} Not supported!")
-
-
-import re
-
-def extract_markdown_images(text: str) -> list[tuple[str, str]]:
-    """Get the image tuple"""
-    # images GROUP 1 = Alt Text GROUP 2 = URL
-    regex_pat = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
-    return re.findall(regex_pat, text)
-
-def extract_markdown_links(text: str) -> list[tuple[str, str]]:
-    """Get the link tuple list"""
-    regex_pat = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
-    return re.findall(regex_pat, text)
-
-
+        
 def split_nodes_delimiter(old_nodes: list[TextNode], output_type: TextType,) -> list[TextNode]:
     """Split out delimited text from an original text node. Preserving order"""
     if type(old_nodes) is not list:
@@ -104,19 +91,4 @@ def split_text_nodes_nested(old_nodes: list[TextNode], )->list[TextNode]:
 def text_to_textnodes(text: str) -> list[TextNode]:
     """Push a text to markdown extraction"""    
     return split_text_nodes_nested([TextNode(text, TextType.TEXT)])
-
-def markdown_to_blocks(markdown: str) -> list[str]:
-    """This routine splits a documents into identifyable blocks of markdown seperated by new lines"""
-    if len(markdown) <= 0:
-        raise ValueError("No document supplied!")
-    orig_blocks = markdown.split("\n\n")
-    blocks = list()
-    for index, block in enumerate(orig_blocks):
-        if len(block.strip()) == 0:
-            continue
-        else:
-            block = '\n'.join([x.strip() for x in block.split('\n')])
-            blocks.append(block.strip())
-    return blocks
-
 
