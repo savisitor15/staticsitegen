@@ -1,8 +1,11 @@
 from textnode import TextNode, TextType
-
+from filefunctions import update_files
 def main():
-    tnode = TextNode("This is a text node", TextType.BOLD, "https://www.boot.dev")
-    print(tnode)
+    files_updated = update_files("static", "public")
+    if len(files_updated) == 0:
+        print(f"{files_updated} - updated")
+    else:
+        print("failed to update")
 
 
 if __name__ == "__main__":
