@@ -35,7 +35,9 @@ class TestBlockNode(unittest.TestCase):
 
     def test_weight(self):
         """Confirm weightness"""
-        
+        node = BlockNode([TextNode(UPPER_MOST_HEADING_TEST, TextType.TEXT)], BlockType.HEADING, 6)
+        self.assertEqual(node.get_weight(), 6)
+
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
 import unittest
 from blocknode import BlockNode, BlockType
+from htmlnode import LeafNode, ParentNode
 from textcommon import text_to_textnodes
-from blockcommon import markdown_to_blocks, block_to_block_type, text_to_blocknodes
+from blockcommon import markdown_to_blocks, block_to_block_type, text_to_blocknodes, block_to_htmlnode
 
 class Test_markdown_to_blocks(unittest.TestCase):
     def test_markdown_to_blocks(self):
@@ -68,5 +69,21 @@ class Test_text_to_blocknodes(unittest.TestCase):
                     BlockNode(text_to_textnodes("This is the first item") + text_to_textnodes("This is a list item") + text_to_textnodes("This is another list item"), BlockType.UNORDERED_LIST)]
         self.assertEqual(text_to_blocknodes(Sample_Text), Expectation )
 
+class Test_block_to_htmlnode(unittest.TestCase):
+    def test_basic(self):
+        node = BlockNode(text_to_textnodes("This is a heading"), BlockType.HEADING, 2)
+        expectation = LeafNode("h2", "This is a heading")
+        result = block_to_htmlnode(node)
+        self.assertEqual(result, expectation)
+
+    def test_ul(self):
+        node = BlockNode(text_to_textnodes("This is the first item") + text_to_textnodes("This is a list item") + text_to_textnodes("This is another list item"), BlockType.UNORDERED_LIST)
+        expectation = ParentNode("ul", [ParentNode("li", [LeafNode("","This is the first item")]),
+                                        ParentNode("li", [LeafNode("","This is a list item")]),
+                                        ParentNode("li", [LeafNode("","This is another list item")])])
+        result = block_to_htmlnode(node)
+        self.assertEqual(result, expectation)
+
+        
 if __name__ == "__main__":
     unittest.main()

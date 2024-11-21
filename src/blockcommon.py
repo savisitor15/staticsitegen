@@ -1,5 +1,5 @@
 from blocknode import BlockType, BlockNode
-from htmlnode import HTMLNode
+from htmlnode import ParentNode, HTMLNode, LeafNode
 from textcommon import text_node_to_html_node, text_to_textnodes
 import re
 
@@ -74,10 +74,25 @@ def text_to_blocknodes(markdown: str) -> list[BlockNode]:
 
 def block_to_htmlnode(block_node: BlockNode) -> HTMLNode:
     """Convert block nodes to their corrosponding html nodes"""
+    children=[text_node_to_html_node(x) for x in block_node.children]
     match block_node.block_type:
         case BlockType.PARAGRAPH:
-            return HTMLNode("p", children=[text_node_to_html_node(x) for x in block_node.children])
+            return ParentNode("p", children)
         case BlockType.HEADING:
-            return HTMLNode("")
+            return LeafNode(f"h{block_node.get_weight()}",block_node.children[0].text)
+        case BlockType.CODE:
+            return ParentNode("pre", [ParentNode("code", children)])
+        case BlockType.QUOTE:
+            return ParentNode("blockquote", children)
+        case BlockType.UNORDERED_LIST:
+            ## This one requires some manual work
+            children = [ParentNode("li", [x]) for x in children]
+            return ParentNode("ul", children)
+        case BlockType.ORDERED_LIST:
+            children = [ParentNode("li", [x]) for x in children]
+            return ParentNode("ol", children)
+        
+def blocks_to_html(block_nodes: list[BlockNode]) -> ParentNode:
+    return ParentNode("div", [block_to_htmlnode(x) for x in block_nodes])
 
 
