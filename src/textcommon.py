@@ -11,7 +11,7 @@ class NodeType(Enum):
     BLOCK = "block"
 
 TextToTag = {
-    TextType.TEXT : "",
+    TextType.TEXT : None,
     TextType.BOLD : "b",
     TextType.ITALIC : "i",
     TextType.LINK : "a",

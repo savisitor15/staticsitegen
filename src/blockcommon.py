@@ -2,6 +2,14 @@ from blocknode import BlockType, BlockNode
 from htmlnode import ParentNode, HTMLNode, LeafNode
 from textcommon import text_node_to_html_node, text_to_textnodes
 import re
+# Patern dict
+patterns = {
+        BlockType.HEADING : r"(^#{1,6})\s(.*?)\n",
+        BlockType.QUOTE : r"(^>{1})\s?(.*?)\n",
+        BlockType.ORDERED_LIST : r"(^\d+.)\s(.*?)\n",
+        BlockType.UNORDERED_LIST : r"(^[*|-])\s(.*?)\n",
+        BlockType.CODE : r"^`{3}([\w]*)\n?([\S\s]+?)\n?`{3}",
+        }
 
 def markdown_to_blocks(markdown: str) -> list[str]:
     """This routine splits a documents into identifyable blocks of markdown seperated by new lines"""
@@ -20,13 +28,6 @@ def markdown_to_blocks(markdown: str) -> list[str]:
 def block_to_block_type(input_doc: str, ) -> BlockType:
     """Assosciate a given string to block type"""
     # Patern dict
-    patterns = {
-        BlockType.HEADING : r"^#{1,6}\s(.*?)\n",
-        BlockType.QUOTE : r"^>{1}\s?(.*?)\n",
-        BlockType.ORDERED_LIST : r"^\d+.\s?(.*?)\n",
-        BlockType.UNORDERED_LIST : r"^[*|-]\s?(.*?)\n",
-        BlockType.CODE : r"^`{3}([\S\s]+?)\n?`{3}",
-        }
     typ_list = list()
     for typ, pat in patterns.items():
         if len(re.findall(pat, input_doc)) > 0:
@@ -43,8 +44,8 @@ def text_to_blockChildren(markdown: str, block_type : BlockType):
     patterns = {
         BlockType.HEADING : r"(^#{1,6})\s(.*?)\n",
         BlockType.QUOTE : r"(^>{1})\s?(.*?)\n",
-        BlockType.ORDERED_LIST : r"(^\d+.)\s?(.*?)\n",
-        BlockType.UNORDERED_LIST : r"(^[*|-])\s?(.*?)\n",
+        BlockType.ORDERED_LIST : r"(^\d+.)\s(.*?)\n",
+        BlockType.UNORDERED_LIST : r"(^[*|-])\s(.*?)\n",
         BlockType.CODE : r"^`{3}([\w]*)\n?([\S\s]+?)\n?`{3}",
         }
     weight = 0
@@ -102,5 +103,4 @@ def block_to_htmlnode(block_node: BlockNode) -> HTMLNode:
         
 def blocks_to_html(block_nodes: list[BlockNode]) -> ParentNode:
     return ParentNode("div", [block_to_htmlnode(x) for x in block_nodes])
-
 
