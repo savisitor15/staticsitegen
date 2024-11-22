@@ -39,6 +39,9 @@ def block_to_block_type(input_doc: str, ) -> BlockType:
         typ_list.append(BlockType.PARAGRAPH)
     return typ_list[0]
 
+def type_list_children(raw:str, node_type: BlockType):
+    return [BlockNode(text_to_textnodes(raw), node_type)]
+
 def text_to_blockChildren(markdown: str, block_type : BlockType):
     # Patern dict
     patterns = {
@@ -57,7 +60,11 @@ def text_to_blockChildren(markdown: str, block_type : BlockType):
         ## Headings
         if block_type == BlockType.HEADING:
             weight = match.group(1).count("#",0,5)
-        outputlist += text_to_textnodes(match.group(2))
+        if block_type == BlockType.ORDERED_LIST or block_type == BlockType.UNORDERED_LIST:
+            # Each line needs to be added as a child, and can have sub-children
+            outputlist += type_list_children(match.group(2), block_type)
+        else:
+            outputlist += text_to_textnodes(match.group(2))
     return outputlist, weight
     
     
@@ -83,7 +90,8 @@ def extract_title(markdown):
 
 def block_to_htmlnode(block_node: BlockNode) -> HTMLNode:
     """Convert block nodes to their corrosponding html nodes"""
-    children=[text_node_to_html_node(x) for x in block_node.children]
+    if block_node.block_type != BlockType.UNORDERED_LIST and block_node.block_type != BlockType.ORDERED_LIST:
+        children=[text_node_to_html_node(x) for x in block_node.children]
     match block_node.block_type:
         case BlockType.PARAGRAPH:
             return ParentNode("p", children)
@@ -95,11 +103,23 @@ def block_to_htmlnode(block_node: BlockNode) -> HTMLNode:
             return ParentNode("blockquote", children)
         case BlockType.UNORDERED_LIST:
             ## This one requires some manual work
-            children = [ParentNode("li", [x]) for x in children]
-            return ParentNode("ul", children)
+            ## These will be block nodes themselves
+            children = [x for x in block_node.children]
+            # each child is a "LI"
+            parent_children = []
+            for child in children:
+                sub_children = [text_node_to_html_node(x) for x in child.children]
+                parent_children.append(ParentNode("li", sub_children))
+            return ParentNode("ul", parent_children)
         case BlockType.ORDERED_LIST:
-            children = [ParentNode("li", [x]) for x in children]
-            return ParentNode("ol", children)
+            ## These will be block nodes themselves
+            children = [x for x in block_node.children]
+            # each child is a "LI"
+            parent_children = []
+            for child in children:
+                sub_children = [text_node_to_html_node(x) for x in child.children]
+                parent_children.append(ParentNode("li", sub_children))
+            return ParentNode("ol", parent_children)
         
 def blocks_to_html(block_nodes: list[BlockNode]) -> ParentNode:
     return ParentNode("div", [block_to_htmlnode(x) for x in block_nodes])

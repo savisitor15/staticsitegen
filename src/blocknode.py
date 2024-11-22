@@ -12,17 +12,17 @@ class BlockType(Enum):
     ORDERED_LIST = "ordered_list"
 
 class BlockNode(object):
-    def __init__(self, doc: list[TextNode], block_type:BlockType, weight = 0) -> "BlockNode":
+    def __init__(self, children: list[TextNode], block_type:BlockType, weight = 0) -> "BlockNode":
         ### Weight is only really used for headings
         self._weight = weight
         ## Do some checking
         if block_type == BlockType.CODE:
-            check_list = doc.copy()
+            check_list = children.copy()
             for index, item in enumerate(check_list):
                 if item.text_type == TextType.CODE:
                     ## Don't support nested code lines
-                    doc[index] = TextNode(item.text, TextType.TEXT, item.url)
-        self.children = doc
+                    children[index] = TextNode(item.text, TextType.TEXT, item.url)
+        self.children = children
         self.block_type = block_type
 
     def __eq__(self, other:"BlockNode"):
