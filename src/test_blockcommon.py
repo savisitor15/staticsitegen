@@ -66,21 +66,21 @@ class Test_text_to_blocknodes(unittest.TestCase):
         """
         Expectation = [BlockNode(text_to_textnodes("This is a heading"),BlockType.HEADING,1),
                     BlockNode(text_to_textnodes("This is a paragraph of text. It has some **bold** and *italic* words inside of it.\n"), BlockType.PARAGRAPH),
-                    BlockNode(text_to_textnodes("This is the first item") + text_to_textnodes("This is a list item") + text_to_textnodes("This is another list item"), BlockType.UNORDERED_LIST)]
+                    BlockNode([BlockNode(text_to_textnodes("This is the first item"), BlockType.UNORDERED_LIST), BlockNode(text_to_textnodes("This is a list item"), BlockType.UNORDERED_LIST), BlockNode(text_to_textnodes("This is another list item"), BlockType.UNORDERED_LIST)], BlockType.UNORDERED_LIST)]
         self.assertEqual(text_to_blocknodes(Sample_Text), Expectation )
 
 class Test_block_to_htmlnode(unittest.TestCase):
     def test_basic(self):
-        node = BlockNode(text_to_textnodes("This is a heading"), BlockType.HEADING, 2)
+        node = text_to_blocknodes("## This is a heading")[0]
         expectation = LeafNode("h2", "This is a heading")
         result = block_to_htmlnode(node)
         self.assertEqual(result, expectation)
 
     def test_ul(self):
-        node = BlockNode(text_to_textnodes("This is the first item") + text_to_textnodes("This is a list item") + text_to_textnodes("This is another list item"), BlockType.UNORDERED_LIST)
-        expectation = ParentNode("ul", [ParentNode("li", [LeafNode("","This is the first item")]),
-                                        ParentNode("li", [LeafNode("","This is a list item")]),
-                                        ParentNode("li", [LeafNode("","This is another list item")])])
+        node = text_to_blocknodes("* This is the first item\n* This is a *list* item\n* This is another list item")[0]
+        expectation = ParentNode("ul", [ParentNode("li", [LeafNode(None,"This is the first item")]),
+                                        ParentNode("li", [LeafNode(None,"This is a "), LeafNode("i", "list"), LeafNode(None, " item")]),
+                                        ParentNode("li", [LeafNode(None,"This is another list item")])])
         result = block_to_htmlnode(node)
         self.assertEqual(result, expectation)
 

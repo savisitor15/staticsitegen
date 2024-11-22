@@ -19,7 +19,7 @@ class Test_text_node_to_html_node(unittest.TestCase):
         """Normal text node to HTML"""
         node = TextNode(HELLO, TextType.TEXT)
         h_node = text_node_to_html_node(node)
-        self.assertEqual(h_node, LeafNode("", HELLO))
+        self.assertEqual(h_node, LeafNode(None, HELLO))
 
     def test_Italic_Conversion(self):
         """Italic node to HTML node"""
