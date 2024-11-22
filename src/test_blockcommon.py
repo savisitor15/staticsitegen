@@ -2,7 +2,7 @@ import unittest
 from blocknode import BlockNode, BlockType
 from htmlnode import LeafNode, ParentNode
 from textcommon import text_to_textnodes
-from blockcommon import markdown_to_blocks, block_to_block_type, text_to_blocknodes, block_to_htmlnode
+from blockcommon import markdown_to_blocks, block_to_block_type, text_to_blocknodes, block_to_htmlnode, extract_title
 
 class Test_markdown_to_blocks(unittest.TestCase):
     def test_markdown_to_blocks(self):
@@ -84,6 +84,12 @@ class Test_block_to_htmlnode(unittest.TestCase):
         result = block_to_htmlnode(node)
         self.assertEqual(result, expectation)
 
-        
+class Test_extract_title(unittest.TestCase):
+    def test_basic(self):
+        sample = "   # this is a title\n and some text"
+        expectation = "this is a title"
+        self.assertEqual(extract_title(sample), expectation)
+
+
 if __name__ == "__main__":
     unittest.main()

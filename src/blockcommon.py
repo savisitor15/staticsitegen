@@ -72,10 +72,10 @@ def text_to_blocknodes(markdown: str) -> list[BlockNode]:
 
 def extract_title(markdown):
     """Find the first 1 weight HEADING"""
-    blocks = text_to_blocknodes(markdown)
-    for block in blocks:
-        if block.get_weight() == 1 and block.block_type == BlockType.HEADING:
-            return block
+    pat = r"(#)\s(.*?)\n"
+    matches = re.finditer(pat, markdown)
+    for match in matches:
+        return match.group(2)
     return None
 
 
