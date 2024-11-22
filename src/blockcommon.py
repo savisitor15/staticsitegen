@@ -70,6 +70,14 @@ def text_to_blocknodes(markdown: str) -> list[BlockNode]:
         outlist.append(BlockNode(children, item[1], weight))
     return outlist
 
+def extract_title(markdown):
+    """Find the first 1 weight HEADING"""
+    blocks = text_to_blocknodes(markdown)
+    for block in blocks:
+        if block.get_weight() == 1 and block.block_type == BlockType.HEADING:
+            return block
+    return None
+
 
 
 def block_to_htmlnode(block_node: BlockNode) -> HTMLNode:
