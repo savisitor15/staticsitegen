@@ -3,6 +3,9 @@ from htmlnode import ParentNode, LeafNode
 from textnode import TextNode
 from blocknode import BlockNode
 
+import os
+from pathlib import Path
+
 def markdown_to_html_node(markdown:str) -> ParentNode:
     """This will return a single string of HTML from a markdown structure"""
     # Convert the markdown to block and textnodes
@@ -36,5 +39,21 @@ def generate_page(from_path, template_path, dest_path):
     with open(dest_path, "w") as fp:
         fp.write(raw_template)
 
+def generate_pages_recursive(dir_path_content: Path, template_path: Path, dest_dir_path: Path):
+    """Traverse the given content path for all .md files and create corrosponding html files"""
+    if os.path.exists(dir_path_content):
+        for fl in os.listdir(dir_path_content):
+            p = Path(fl)
+            if os.path.isfile(dir_path_content.joinpath(p)) and p.suffix == ".md":
+                if not os.path.exists(dest_dir_path):
+                    os.mkdir(dest_dir_path)
+                # Files get processed
+                output_name = p.with_suffix(".html")
+                generate_page(dir_path_content.joinpath(p), template_path, Path(dest_dir_path).joinpath(output_name))
+            else:
+                # Directories, go a level down!
+                generate_pages_recursive(dir_path_content.joinpath(p), template_path, dest_dir_path.joinpath(p))
+    else:
+        raise FileExistsError(f"{dir_path_content} doesn't exist!")
 
 
